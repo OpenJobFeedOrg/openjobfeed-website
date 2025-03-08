@@ -5,22 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenJobFeed</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
     <header>
-        <h1>Welcome to OpenJobFeed</h1>
+        <h1>OpenJobFeed</h1>
         <p>A Unified, Open Standard for Job Listings.</p>
     </header>
 
     <section>
-        <h2>About OpenJobFeed</h2>
-        <p>OpenJobFeed is a JSON-based standard for job listings, making it easy to share and integrate job listings across platforms.</p>
+        <div id="content">Loading...</div>
     </section>
 
     <footer>
         <p>2025 OpenJobFeed | <a href="https://github.com/OpenJobFeedOrg">GitHub</a></p>
     </footer>
 
+    <script>
+        async function fetchMarkdown() {
+            const url = 'https://raw.githubusercontent.com/OpenJobFeedOrg/.github/main/profile/README.md';
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch Markdown file');
+                
+                const markdown = await response.text();
+                document.getElementById('content').innerHTML = marked.parse(markdown);
+            } catch (error) {
+                document.getElementById('content').innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        fetchMarkdown();
+    </script>
+    
 </body>
 </html>
