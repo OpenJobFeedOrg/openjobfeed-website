@@ -1,20 +1,22 @@
 body {
     font-family: Arial, sans-serif;
-    text-align: center;
     padding: 20px;
 }
 
 header {
-    background-color: #007bff;
+    background-color: #024995;
     color: white;
     padding: 20px;
+    text-align: center;
 }
 
 section {
-    margin: 20px;
+    margin: 20px auto;
+    max-width: 800px;
 }
 
 footer {
     margin-top: 20px;
     font-size: 14px;
+    text-align: center;
 }
