@@ -18,13 +18,29 @@
         <div id="content">Loading...</div>
     </section>
 
+    <section>
+        <h1>OpenJobFeed JSON Schema</h1>
+        <label for="schema-version">Select Schema Version:</label>
+        <select id="schema-version">
+            <option>Loading versions...</option>
+        </select>
+        <div class="schema-link-block">
+            <!-- Display GitHub URL of Selected Schema -->
+            <a id="schema-link" href="#" target="_blank">Schema URL</a>
+        </div>
+        <div id="schema-container">Loading schema...</div>
+    </section>
+    
     <footer>
         <p>2025 OpenJobFeed | <a href="https://github.com/OpenJobFeedOrg">GitHub</a></p>
     </footer>
 
     <script>
+
+        const repoOwner = "OpenJobFeedOrg";
+
         async function fetchMarkdown() {
-            const url = 'https://raw.githubusercontent.com/OpenJobFeedOrg/.github/main/profile/README.md';
+            const url = 'https://raw.githubusercontent.com/${repoOwner}/.github/main/profile/README.md';
             try {
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Failed to fetch Markdown file');
@@ -37,6 +53,79 @@
         }
 
         fetchMarkdown();
+
+        const repoName = "openjobfeed-schema";
+        const schemaPath = "schemas";
+        const versionDropdown = document.getElementById("schema-version");
+        const schemaContainer = document.getElementById("schema-container");
+        const schemaLink = document.getElementById("schema-link");
+        let editor;
+
+        // Fetch Available Versions from GitHub
+        async function fetchSchemaVersions() {
+            const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${schemaPath}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
+
+                const folders = await response.json();
+                const versions = folders.filter(item => item.type === "dir").map(dir => dir.name);
+
+                // Populate Dropdown with Versions
+                versionDropdown.innerHTML = "";
+                versions.forEach(version => {
+                    const option = document.createElement("option");
+                    option.value = version;
+                    option.textContent = version;
+                    versionDropdown.appendChild(option);
+                });
+
+                // Load the first available schema by default
+                if (versions.length > 0) fetchAndDisplaySchema(versions[0]);
+
+            } catch (error) {
+                console.error("Error fetching schema versions:", error);
+                versionDropdown.innerHTML = `<option>Error loading versions</option>`;
+            }
+        }
+
+        async function fetchAndDisplaySchema(version) {
+            const schemaUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${schemaPath}/${version}/openjobfeed-schema.json`;
+            const schemaGitHubUrl = `https://github.com/${repoOwner}/${repoName}/blob/main/${schemaPath}/${version}/openjobfeed-schema.json`;
+
+            try {
+                const response = await fetch(schemaUrl);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                
+                const schema = await response.json();
+                
+                // Render JSON Schema in JSONEditor
+                schemaContainer.innerHTML = "";  // Clear loading text
+                
+                // Update schema link
+                schemaLink.href = schemaGitHubUrl;
+                schemaLink.textContent = schemaGitHubUrl;
+
+                const editor = new JSONEditor(schemaContainer, {
+                    mode: "view",  // Set "tree" or "text" for different views
+                    mainMenuBar: false  // Hide menu bar
+                });
+                editor.set(schema);
+
+            } catch (error) {
+                schemaContainer.innerHTML = `<p>Error loading schema: ${error.message}</p>`;
+                schemaLink.textContent = "Error loading schema URL";
+                schemaLink.href = "#";
+            }
+        }
+
+        // Listen for Schema Version Selection
+        versionDropdown.addEventListener("change", (e) => fetchAndDisplaySchema(e.target.value));
+
+        // Fetch versions on page load
+        fetchSchemaVersions();
+
     </script>
     
 </body>
