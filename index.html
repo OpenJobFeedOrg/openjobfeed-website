@@ -6,6 +6,9 @@
     <title>OpenJobFeed</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Include JSONEditor (For Readable Schema Display) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.0/jsoneditor.min.js"></script>
 </head>
 <body>
 
@@ -40,7 +43,7 @@
         const repoOwner = "OpenJobFeedOrg";
 
         async function fetchMarkdown() {
-            const url = 'https://raw.githubusercontent.com/${repoOwner}/.github/main/profile/README.md';
+            const url = `https://raw.githubusercontent.com/${repoOwner}/.github/main/profile/README.md`;
             try {
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Failed to fetch Markdown file');
